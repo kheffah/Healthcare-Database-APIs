@@ -3,6 +3,7 @@
 * https://www.opendatanetwork.com/dataset/chronicdata.cdc.gov/96er-cudr
 * https://dev.socrata.com/foundry/chronicdata.cdc.gov/fn2i-3j6c
 * https://dev.socrata.com/docs/queries/
+* https://www.opendatanetwork.com/dataset/chronicdata.cdc.gov/6vp6-wxuq
 
 https://dev.socrata.com/foundry/chronicdata.cdc.gov/5hnu-2c66
 https://nccd.cdc.gov/cdi/rdPage.aspx?rdReport=DPH_CDI.ExploreByLocation&rdRequestForwarding=Form
