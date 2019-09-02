@@ -19,6 +19,9 @@ SAVEPATH = "C:\\Users\\tageldim\\Desktop\\Healthcare-Database-APIs\\results\\"
 # Specific datasets
 # =============================================================================
 
+YEARS = [2015, 2016, 2017, 2018]
+# YEARS = [2015, ]
+
 # BRFSS Table of oral health
 # https://www.opendatanetwork.com/dataset/chronicdata.cdc.gov/96er-cudr
 ORAL_HEALTH = {
@@ -27,7 +30,7 @@ ORAL_HEALTH = {
     "filters": {
         "dataset_identifier": "fn2i-3j6c",
         "limit": LIMIT,
-        "year": 2017,
+        # "year": 2015,
         "break_out_category": "Overall",
         "response": "Yes",
     },
@@ -61,7 +64,7 @@ CITIES = {
     "filters": {
         "dataset_identifier": "csmm-fdhi",
         "limit": LIMIT,
-        "year": 2016,
+        # "year": 2015,
         # "data_value_type": "Crude prevalence",
         "data_value_type": "Age-adjusted prevalence",
         "geographiclevel": "City",

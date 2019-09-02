@@ -5,7 +5,8 @@ Created on Wed Aug 28 18:41:21 2019
 @author: tageldim
 """
 
-from pandas import DataFrame
+import copy
+from pandas import DataFrame, concat
 from sodapy import Socrata
 
 import sys
@@ -32,7 +33,8 @@ def get_table_components(client, dataset):
     filters['group'] = ",".join(dataset['to_fetch_schema'])
     filters['order'] = ",".join(dataset['to_fetch_schema'][:3])
     result = get_df_from_filter(client, filters=filters)
-    result.index = result.loc[:, dataset['indicator']]
+    if result.shape[0] > 0:
+        result.index = result.loc[:, dataset['indicator']]
     return result
 
 
@@ -78,18 +80,71 @@ if __name__ == '__main__':
     # Authenticated client (needed for non-public datasets)
     client = Socrata(cfg.APIURL, cfg.APPTOKEN)
 
-    for dataset in [cfg.ORAL_HEALTH, cfg.CITIES]:
+    # sort so that most recent data takes precedence
+    cfg.YEARS.sort()
+    cfg.YEARS = cfg.YEARS[::-1]
+    for year in cfg.YEARS + ["mostRecent", ]:
+        try:
+            os.mkdir(os.path.join(cfg.SAVEPATH, str(year)))
+        except FileExistsError:
+            pass
 
-        # first we get dataset components
-        print("%s: getting table components" % dataset['name'])
-        components_df = get_table_components(client, dataset)
-        components_df.to_csv(os.path.join(
-            cfg.SAVEPATH, "%s_components.csv" % dataset['name']))
+    for dat in [cfg.ORAL_HEALTH, cfg.CITIES]:
 
-        # Now we get summary tables
-        N_df, percent_df = get_summary_dfs_from_dataset(
-            client, dataset, components_df)
-        N_df.to_csv(os.path.join(
-            cfg.SAVEPATH, "%s_sampleSize.csv" % dataset['name']))
-        percent_df.to_csv(os.path.join(
-            cfg.SAVEPATH, "%s_percent.csv" % dataset['name']))
+        components_df_recent = DataFrame()
+        N_df_recent = DataFrame()
+        percent_df_recent = DataFrame()
+
+        # Extract data for each year and dataset
+        for year in cfg.YEARS:
+
+            dataset = copy.deepcopy(dat)
+            print("\n===== %d: %s =====" % (year, dataset['name']))
+            dataset["filters"]["year"] = year
+
+            # Get datasets
+            print("%s: getting table components" % dataset['name'])
+            components_df = get_table_components(client, dataset)
+            if components_df.shape[0] < 1:
+                continue
+
+            # now get actual datset
+            N_df, percent_df = get_summary_dfs_from_dataset(
+                client, dataset, components_df)
+
+            # merge with most recent if contains new info
+            components_df.loc[:, "year"] = year
+            new_idxs = set(
+                components_df.index) - set(components_df_recent.index)
+            components_df_recent = concat(
+                (components_df_recent, components_df.loc[new_idxs, :]),
+                axis=0, join='outer', sort=False)
+            new_cols = set(N_df.columns) - set(N_df_recent.columns)
+            N_df_recent = concat(
+                (N_df_recent, N_df.loc[:, new_cols]), axis=1, join='outer',
+                sort=False)
+            percent_df_recent = concat(
+                (percent_df_recent, percent_df.loc[:, new_cols]),
+                axis=1, join='outer', sort=False)
+
+            # save
+            N_df.loc[:, "year"] = year
+            SAVEPATH = os.path.join(cfg.SAVEPATH, str(year))
+            percent_df.loc[:, "year"] = year
+            components_df.to_csv(os.path.join(
+                SAVEPATH, "%s_components_%d.csv" % (dataset['name'], year)))
+            N_df.to_csv(os.path.join(
+                SAVEPATH, "%s_sampleSize_%d.csv" % (dataset['name'], year)))
+            percent_df.to_csv(os.path.join(
+                SAVEPATH, "%s_percent_%d.csv" % (dataset['name'], year)))
+
+        # save most recent data
+        SAVEPATH = os.path.join(cfg.SAVEPATH, "mostRecent")
+        components_df_recent.to_csv(os.path.join(
+            SAVEPATH, "%s_components_mostRecent.csv" % dataset['name']))
+        N_df_recent.to_csv(os.path.join(
+            SAVEPATH, "%s_sampleSize_mostRecent.csv" % dataset['name']))
+        percent_df_recent.to_csv(os.path.join(
+            SAVEPATH, "%s_percent_mostRecent.csv" % dataset['name']))
+
+# %%===========================================================================
