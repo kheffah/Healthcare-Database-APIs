@@ -134,17 +134,21 @@ if __name__ == '__main__':
             components_df.to_csv(os.path.join(
                 SAVEPATH, "%s_components_%d.csv" % (dataset['name'], year)))
             N_df.to_csv(os.path.join(
-                SAVEPATH, "%s_sampleSize_%d.csv" % (dataset['name'], year)))
+                SAVEPATH, "%s_%s_%d.csv" %
+                (dataset['name'], dataset['N'], year)))
             percent_df.to_csv(os.path.join(
-                SAVEPATH, "%s_percent_%d.csv" % (dataset['name'], year)))
+                SAVEPATH, "%s_%s_%d.csv" %
+                (dataset['name'], dataset['val'], year)))
 
         # save most recent data
         SAVEPATH = os.path.join(cfg.SAVEPATH, "mostRecent")
         components_df_recent.to_csv(os.path.join(
             SAVEPATH, "%s_components_mostRecent.csv" % dataset['name']))
         N_df_recent.to_csv(os.path.join(
-            SAVEPATH, "%s_sampleSize_mostRecent.csv" % dataset['name']))
+            SAVEPATH, "%s_%s_mostRecent.csv" %
+            (dataset['name'], dataset['N'])))
         percent_df_recent.to_csv(os.path.join(
-            SAVEPATH, "%s_percent_mostRecent.csv" % dataset['name']))
+            SAVEPATH, "%s_%s_mostRecent.csv" %
+            (dataset['name'], dataset['val'])))
 
 # %%===========================================================================

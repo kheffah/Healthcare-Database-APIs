@@ -5,6 +5,8 @@ Created on Wed Aug 28 20:41:31 2019
 @author: tageldim
 """
 
+import os
+
 # %%===========================================================================
 # General
 # =============================================================================
@@ -13,7 +15,15 @@ APIURL = "chronicdata.cdc.gov"
 APPTOKEN = "bi9XxFZGt4uWVdqagl6pbdFht"
 LIMIT = 1000000
 
+METRIC = "crude prevalence"
+# METRIC = "age-adjusted prevalence"
 SAVEPATH = "C:\\Users\\tageldim\\Desktop\\Healthcare-Database-APIs\\results\\"
+SAVEPATH = os.path.join(SAVEPATH, METRIC.replace(' ', '_'))
+
+try:
+    os.mkdir(SAVEPATH)
+except FileExistsError:
+    pass
 
 # %%===========================================================================
 # Specific datasets
@@ -33,6 +43,7 @@ ORAL_HEALTH = {
         # "year": 2015,
         "break_out_category": "Overall",
         "response": "Yes",
+        "data_value_type": METRIC.title(),
     },
     # unique metrics to fetch
     "all_indicators": None,
@@ -65,8 +76,8 @@ CITIES = {
         "dataset_identifier": "csmm-fdhi",
         "limit": LIMIT,
         # "year": 2015,
-        # "data_value_type": "Crude prevalence",
-        "data_value_type": "Age-adjusted prevalence",
+        "data_value_type": METRIC.capitalize(),
+        # "data_value_type": "Age-adjusted prevalence",
         "geographiclevel": "City",
     },
     # unique metrics to fetch
@@ -91,16 +102,6 @@ CITIES = {
 
 
 # %%===========================================================================
-
-
-
-
-
-
-
-
-
-
 
 
 
